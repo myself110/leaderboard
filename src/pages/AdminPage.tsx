@@ -84,6 +84,23 @@ export function AdminPage() {
     }
   }
 
+  async function handleResetScores() {
+    if (!token) return;
+
+    const confirmed = window.confirm(
+      'Reset all scores for every group? Groups and QR codes stay the same. This cannot be undone.',
+    );
+    if (!confirmed) return;
+
+    setError(null);
+    try {
+      const result = await api.resetScores(token);
+      setMessage(`Scores reset (${result.cleared} submission${result.cleared === 1 ? '' : 's'} cleared)`);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to reset scores');
+    }
+  }
+
   async function handleExport() {
     if (!token) return;
     const csv = await api.exportCsv(token);
@@ -185,6 +202,12 @@ export function AdminPage() {
             Save
           </button>
         </form>
+        <div className="settings-reset">
+          <p className="meta">Clear every score to start a new session. Groups and QR codes are kept.</p>
+          <button type="button" className="btn danger" onClick={() => void handleResetScores()}>
+            Reset all scores
+          </button>
+        </div>
       </section>
 
       <section className="card">

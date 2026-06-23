@@ -86,6 +86,12 @@ export const api = {
       headers: { ...authHeaders(token), 'Content-Type': 'text/csv' },
       body: csv,
     }),
+
+  resetScores: (token: string) =>
+    request<{ ok: boolean; cleared: number }>('/admin-reset-scores', {
+      method: 'POST',
+      headers: authHeaders(token),
+    }),
 };
 
 export function submitUrl(token: string): string {

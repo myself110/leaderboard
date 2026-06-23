@@ -281,6 +281,18 @@ select {
   gap: 0.75rem;
 }
 
+.settings-reset {
+  display: grid;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid rgba(148, 163, 184, 0.18);
+}
+
+.settings-reset .btn {
+  justify-self: start;
+}
+
 .qr-sheet-header,
 .admin-toolbar {
   margin-bottom: 1rem;
