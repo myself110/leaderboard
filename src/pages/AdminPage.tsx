@@ -1,0 +1,292 @@
+import { ChangeEvent, FormEvent, useEffect, useState } from 'react';
+import { QRCodeSVG } from 'qrcode.react';
+import type { Group, Player } from '../../shared/types';
+import { QrSheet } from '../components/QrSheet';
+import { clearAdminToken, getAdminToken, setAdminToken } from '../hooks/useAdminAuth';
+import { api, submitUrl } from '../lib/api';
+
+export function AdminPage() {
+  const [token, setToken] = useState<string | null>(() => getAdminToken());
+  const [password, setPassword] = useState('');
+  const [players, setPlayers] = useState<Player[]>([]);
+  const [groups, setGroups] = useState<Group[]>([]);
+  const [maxSubmissions, setMaxSubmissions] = useState(3);
+  const [playerName, setPlayerName] = useState('');
+  const [playerGroupId, setPlayerGroupId] = useState('');
+  const [groupName, setGroupName] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const [message, setMessage] = useState<string | null>(null);
+  const [showQrSheet, setShowQrSheet] = useState(false);
+
+  async function loadAdminData(authToken: string) {
+    const [playersResponse, settingsResponse] = await Promise.all([
+      api.getAdminPlayers(authToken),
+      api.getSettings(authToken),
+    ]);
+    setPlayers(playersResponse.players);
+    setGroups(playersResponse.groups);
+    setMaxSubmissions(settingsResponse.settings.maxSubmissionsPerPlayer);
+  }
+
+  useEffect(() => {
+    if (!token) return;
+
+    void loadAdminData(token).catch((err) => {
+      clearAdminToken();
+      setToken(null);
+      setError(err instanceof Error ? err.message : 'Session expired');
+    });
+  }, [token]);
+
+  async function handleLogin(event: FormEvent) {
+    event.preventDefault();
+    setError(null);
+
+    try {
+      const response = await api.adminLogin(password);
+      if (!response.token) {
+        throw new Error('Login failed');
+      }
+      setAdminToken(response.token);
+      setToken(response.token);
+      setPassword('');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Login failed');
+    }
+  }
+
+  async function handleAddPlayer(event: FormEvent) {
+    event.preventDefault();
+    if (!token) return;
+
+    try {
+      await api.addPlayer(token, playerName, playerGroupId || null);
+      setPlayerName('');
+      setPlayerGroupId('');
+      setMessage('Player added');
+      await loadAdminData(token);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to add player');
+    }
+  }
+
+  async function handleAddGroup(event: FormEvent) {
+    event.preventDefault();
+    if (!token) return;
+
+    try {
+      await api.addGroup(token, groupName);
+      setGroupName('');
+      setMessage('Group added');
+      await loadAdminData(token);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to add group');
+    }
+  }
+
+  async function handleDeletePlayer(id: string) {
+    if (!token) return;
+    await api.deletePlayer(token, id);
+    await loadAdminData(token);
+  }
+
+  async function handleDeleteGroup(id: string) {
+    if (!token) return;
+    await api.deleteGroup(token, id);
+    await loadAdminData(token);
+  }
+
+  async function handleSaveSettings(event: FormEvent) {
+    event.preventDefault();
+    if (!token) return;
+
+    try {
+      await api.updateSettings(token, maxSubmissions);
+      setMessage('Settings saved');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to save settings');
+    }
+  }
+
+  async function handleExport() {
+    if (!token) return;
+    const csv = await api.exportCsv(token);
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'leaderboard.csv';
+    link.click();
+    URL.revokeObjectURL(url);
+  }
+
+  async function handleImport(event: ChangeEvent<HTMLInputElement>) {
+    if (!token) return;
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const csv = await file.text();
+    const result = await api.importCsv(token, csv);
+    setMessage(`Imported ${result.imported} players`);
+    await loadAdminData(token);
+    event.target.value = '';
+  }
+
+  function handleLogout() {
+    clearAdminToken();
+    setToken(null);
+    setPlayers([]);
+    setGroups([]);
+  }
+
+  if (!token) {
+    return (
+      <main className="page admin-page">
+        <header className="page-header compact">
+          <p className="eyebrow">Organizer</p>
+          <h1>Admin login</h1>
+        </header>
+
+        {error && <p className="status error">{error}</p>}
+
+        <form className="card form-card" onSubmit={handleLogin}>
+          <label htmlFor="password">Password</label>
+          <input
+            id="password"
+            type="password"
+            required
+            value={password}
+            onChange={(event) => setPassword(event.target.value)}
+          />
+          <button type="submit" className="btn primary">
+            Log in
+          </button>
+        </form>
+      </main>
+    );
+  }
+
+  if (showQrSheet) {
+    return (
+      <main className="page admin-page">
+        <div className="screen-only admin-toolbar">
+          <button type="button" className="btn" onClick={() => setShowQrSheet(false)}>
+            Back to admin
+          </button>
+        </div>
+        <QrSheet players={players} groups={groups} />
+      </main>
+    );
+  }
+
+  return (
+    <main className="page admin-page">
+      <header className="page-header compact admin-header">
+        <div>
+          <p className="eyebrow">Organizer</p>
+          <h1>Admin panel</h1>
+        </div>
+        <button type="button" className="btn" onClick={handleLogout}>
+          Log out
+        </button>
+      </header>
+
+      {error && <p className="status error">{error}</p>}
+      {message && <p className="status success">{message}</p>}
+
+      <section className="card">
+        <h2>Settings</h2>
+        <form className="inline-form" onSubmit={handleSaveSettings}>
+          <label htmlFor="max-submissions">Max submissions per QR</label>
+          <input
+            id="max-submissions"
+            type="number"
+            min="1"
+            max="99"
+            value={maxSubmissions}
+            onChange={(event) => setMaxSubmissions(Number(event.target.value))}
+          />
+          <button type="submit" className="btn primary">
+            Save
+          </button>
+        </form>
+      </section>
+
+      <section className="card">
+        <h2>Groups</h2>
+        <form className="inline-form" onSubmit={handleAddGroup}>
+          <input
+            placeholder="Group name"
+            value={groupName}
+            onChange={(event) => setGroupName(event.target.value)}
+            required
+          />
+          <button type="submit" className="btn">
+            Add group
+          </button>
+        </form>
+        <ul className="simple-list">
+          {groups.map((group) => (
+            <li key={group.id}>
+              <span>{group.name}</span>
+              <button type="button" className="btn danger" onClick={() => void handleDeleteGroup(group.id)}>
+                Delete
+              </button>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <section className="card">
+        <h2>Players</h2>
+        <form className="inline-form" onSubmit={handleAddPlayer}>
+          <input
+            placeholder="Player name"
+            value={playerName}
+            onChange={(event) => setPlayerName(event.target.value)}
+            required
+          />
+          <select value={playerGroupId} onChange={(event) => setPlayerGroupId(event.target.value)}>
+            <option value="">No group</option>
+            {groups.map((group) => (
+              <option key={group.id} value={group.id}>
+                {group.name}
+              </option>
+            ))}
+          </select>
+          <button type="submit" className="btn primary">
+            Add player
+          </button>
+        </form>
+
+        <div className="player-grid">
+          {players.map((player) => (
+            <article key={player.id} className="player-card">
+              <div>
+                <h3>{player.name}</h3>
+                <p className="meta">{submitUrl(player.token)}</p>
+              </div>
+              <QRCodeSVG value={submitUrl(player.token)} size={96} level="M" includeMargin />
+              <button type="button" className="btn danger" onClick={() => void handleDeletePlayer(player.id)}>
+                Delete
+              </button>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className="card admin-actions">
+        <button type="button" className="btn primary" onClick={() => setShowQrSheet(true)}>
+          Print QR sheet
+        </button>
+        <button type="button" className="btn" onClick={() => void handleExport()}>
+          Export CSV
+        </button>
+        <label className="btn file-btn">
+          Import CSV
+          <input type="file" accept=".csv,text/csv" onChange={(event) => void handleImport(event)} hidden />
+        </label>
+      </section>
+    </main>
+  );
+}
