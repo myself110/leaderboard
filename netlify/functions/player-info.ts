@@ -16,7 +16,7 @@ export const handler: Handler = async (event) => {
   }
 
   try {
-    const data = await loadData();
+    const data = await loadData(event);
     const player = data.players.find((entry) => entry.token === token);
     if (!player) {
       return errorResponse('Player not found', 404);

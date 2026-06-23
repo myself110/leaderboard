@@ -26,7 +26,7 @@ export const handler: Handler = async (event) => {
   }
 
   try {
-    const data = await loadData();
+    const data = await loadData(event);
     const player = data.players.find((entry) => entry.token === body.token);
     if (!player) {
       return errorResponse('Player not found', 404);
@@ -47,7 +47,7 @@ export const handler: Handler = async (event) => {
       submittedAt: new Date().toISOString(),
     });
 
-    await saveData(data);
+    await saveData(data, event);
 
     return jsonResponse({
       ok: true,

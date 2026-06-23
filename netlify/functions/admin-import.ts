@@ -79,7 +79,7 @@ export const handler: Handler = async (event) => {
       return errorResponse('CSV must include a "name" column', 400);
     }
 
-    const data = await loadData();
+    const data = await loadData(event);
     let imported = 0;
 
     for (const row of rows.slice(1)) {
@@ -116,7 +116,7 @@ export const handler: Handler = async (event) => {
       return errorResponse('No valid players found in CSV', 400);
     }
 
-    await saveData(data);
+    await saveData(data, event);
     return jsonResponse({ ok: true, imported });
   } catch (error) {
     console.error('admin-import error', error);

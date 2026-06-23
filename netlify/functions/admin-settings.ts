@@ -23,7 +23,7 @@ export const handler: Handler = async (event) => {
   }
 
   try {
-    const data = await loadData();
+    const data = await loadData(event);
 
     if (event.httpMethod === 'GET') {
       return jsonResponse({ settings: data.settings });
@@ -38,7 +38,7 @@ export const handler: Handler = async (event) => {
       }
 
       data.settings.maxSubmissionsPerPlayer = max;
-      await saveData(data);
+      await saveData(data, event);
       return jsonResponse({ settings: data.settings });
     }
 

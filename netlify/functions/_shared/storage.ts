@@ -1,7 +1,8 @@
 import crypto from 'node:crypto';
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { getStore } from '@netlify/blobs';
+import { connectLambda, getStore } from '@netlify/blobs';
+import type { HandlerEvent } from '@netlify/functions';
 import type { AppData } from '../../../shared/types';
 
 const STORE_NAME = 'leaderboard';
@@ -37,33 +38,37 @@ function useLocalStorage(): boolean {
   return Boolean(process.env.NETLIFY_DEV || process.env.USE_LOCAL_DATA === 'true');
 }
 
-export async function loadData(): Promise<AppData> {
+function getBlobStore(event?: HandlerEvent) {
+  if (event) {
+    connectLambda(event);
+  }
+  return getStore(STORE_NAME);
+}
+
+export async function loadData(event?: HandlerEvent): Promise<AppData> {
   if (useLocalStorage()) {
     return readLocalData();
   }
 
   try {
-    const store = getStore(STORE_NAME);
+    const store = getBlobStore(event);
     const data = await store.get(BLOB_KEY, { type: 'json' });
     if (!data) return structuredClone(DEFAULT_DATA);
     return { ...DEFAULT_DATA, ...(data as AppData) };
-  } catch {
-    return readLocalData();
+  } catch (error) {
+    console.error('Failed to load from Netlify Blobs', error);
+    return structuredClone(DEFAULT_DATA);
   }
 }
 
-export async function saveData(data: AppData): Promise<void> {
+export async function saveData(data: AppData, event?: HandlerEvent): Promise<void> {
   if (useLocalStorage()) {
     await writeLocalData(data);
     return;
   }
 
-  try {
-    const store = getStore(STORE_NAME);
-    await store.setJSON(BLOB_KEY, data);
-  } catch {
-    await writeLocalData(data);
-  }
+  const store = getBlobStore(event);
+  await store.setJSON(BLOB_KEY, data);
 }
 
 export function newId(): string {

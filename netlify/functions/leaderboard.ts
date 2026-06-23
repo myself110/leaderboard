@@ -12,7 +12,7 @@ export const handler: Handler = async (event) => {
   }
 
   try {
-    const data = await loadData();
+    const data = await loadData(event);
     const rows = buildLeaderboard(data);
 
     return jsonResponse({

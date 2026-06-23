@@ -23,7 +23,7 @@ export const handler: Handler = async (event) => {
   }
 
   try {
-    const data = await loadData();
+    const data = await loadData(event);
 
     if (event.httpMethod === 'GET') {
       return jsonResponse({ groups: data.groups });
@@ -43,7 +43,7 @@ export const handler: Handler = async (event) => {
       };
 
       data.groups.push(group);
-      await saveData(data);
+      await saveData(data, event);
       return jsonResponse({ group }, 201);
     }
 
@@ -57,7 +57,7 @@ export const handler: Handler = async (event) => {
       data.players = data.players.map((player) =>
         player.groupId === groupId ? { ...player, groupId: null } : player,
       );
-      await saveData(data);
+      await saveData(data, event);
       return jsonResponse({ ok: true });
     }
 
