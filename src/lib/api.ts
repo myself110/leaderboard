@@ -28,8 +28,8 @@ function authHeaders(token: string): HeadersInit {
 export const api = {
   getLeaderboard: () => request<import('../../shared/types').LeaderboardResponse>('/leaderboard'),
 
-  getPlayerInfo: (token: string) =>
-    request<import('../../shared/types').PlayerPublicInfo>(`/player-info?token=${encodeURIComponent(token)}`),
+  getGroupInfo: (token: string) =>
+    request<import('../../shared/types').GroupPublicInfo>(`/player-info?token=${encodeURIComponent(token)}`),
 
   submitScore: (token: string, score: number) =>
     request<{ ok: boolean; submissionCount: number; maxSubmissions: number }>('/submit-score', {
@@ -45,26 +45,7 @@ export const api = {
       body: JSON.stringify({ password }),
     }),
 
-  getAdminPlayers: (token: string) =>
-    request<{ players: import('../../shared/types').Player[]; groups: import('../../shared/types').Group[] }>(
-      '/admin-players',
-      { headers: authHeaders(token) },
-    ),
-
-  addPlayer: (token: string, name: string, groupId: string | null) =>
-    request<{ player: import('../../shared/types').Player }>('/admin-players', {
-      method: 'POST',
-      headers: { ...authHeaders(token), 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, groupId }),
-    }),
-
-  deletePlayer: (token: string, id: string) =>
-    request<{ ok: boolean }>(`/admin-players?id=${encodeURIComponent(id)}`, {
-      method: 'DELETE',
-      headers: authHeaders(token),
-    }),
-
-  getGroups: (token: string) =>
+  getAdminGroups: (token: string) =>
     request<{ groups: import('../../shared/types').Group[] }>('/admin-groups', {
       headers: authHeaders(token),
     }),

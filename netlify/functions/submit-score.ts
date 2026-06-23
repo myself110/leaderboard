@@ -27,13 +27,13 @@ export const handler: Handler = async (event) => {
 
   try {
     const data = await loadData(event);
-    const player = data.players.find((entry) => entry.token === body.token);
-    if (!player) {
-      return errorResponse('Player not found', 404);
+    const group = data.players.find((entry) => entry.token === body.token);
+    if (!group) {
+      return errorResponse('Group not found', 404);
     }
 
     const submissionCount = data.submissions.filter(
-      (submission) => submission.playerId === player.id,
+      (submission) => submission.playerId === group.id,
     ).length;
 
     if (submissionCount >= data.settings.maxSubmissionsPerPlayer) {
@@ -42,7 +42,7 @@ export const handler: Handler = async (event) => {
 
     data.submissions.push({
       id: newId(),
-      playerId: player.id,
+      playerId: group.id,
       score,
       submittedAt: new Date().toISOString(),
     });

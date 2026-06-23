@@ -17,28 +17,24 @@ export const handler: Handler = async (event) => {
 
   try {
     const data = await loadData(event);
-    const player = data.players.find((entry) => entry.token === token);
-    if (!player) {
-      return errorResponse('Player not found', 404);
+    const group = data.players.find((entry) => entry.token === token);
+    if (!group) {
+      return errorResponse('Group not found', 404);
     }
 
     const submissionCount = data.submissions.filter(
-      (submission) => submission.playerId === player.id,
+      (submission) => submission.playerId === group.id,
     ).length;
     const maxSubmissions = data.settings.maxSubmissionsPerPlayer;
-    const group = player.groupId
-      ? data.groups.find((entry) => entry.id === player.groupId)
-      : null;
 
     return jsonResponse({
-      name: player.name,
-      groupName: group?.name ?? null,
+      name: group.name,
       submissionCount,
       maxSubmissions,
       canSubmit: submissionCount < maxSubmissions,
     });
   } catch (error) {
     console.error('player-info error', error);
-    return errorResponse('Failed to load player info', 500);
+    return errorResponse('Failed to load group info', 500);
   }
 };

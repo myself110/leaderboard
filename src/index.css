@@ -297,10 +297,8 @@ select {
     align-items: start;
   }
 
-  .leaderboard-table th:nth-child(3),
-  .leaderboard-table td:nth-child(3),
-  .leaderboard-table th:nth-child(6),
-  .leaderboard-table td:nth-child(6) {
+  .leaderboard-table th:nth-child(5),
+  .leaderboard-table td:nth-child(5) {
     display: none;
   }
 }

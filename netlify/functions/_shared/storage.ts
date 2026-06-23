@@ -9,7 +9,6 @@ const STORE_NAME = 'leaderboard';
 const BLOB_KEY = 'data';
 
 export const DEFAULT_DATA: AppData = {
-  groups: [],
   players: [],
   submissions: [],
   settings: { maxSubmissionsPerPlayer: 3 },
@@ -22,7 +21,12 @@ function localDataPath(): string {
 async function readLocalData(): Promise<AppData> {
   try {
     const raw = await fs.readFile(localDataPath(), 'utf8');
-    return { ...DEFAULT_DATA, ...JSON.parse(raw) };
+    const parsed = JSON.parse(raw) as AppData;
+    return {
+      ...DEFAULT_DATA,
+      ...parsed,
+      players: parsed.players ?? [],
+    };
   } catch {
     return structuredClone(DEFAULT_DATA);
   }
@@ -54,7 +58,12 @@ export async function loadData(event?: HandlerEvent): Promise<AppData> {
     const store = getBlobStore(event);
     const data = await store.get(BLOB_KEY, { type: 'json' });
     if (!data) return structuredClone(DEFAULT_DATA);
-    return { ...DEFAULT_DATA, ...(data as AppData) };
+    const parsed = data as AppData;
+    return {
+      ...DEFAULT_DATA,
+      ...parsed,
+      players: parsed.players ?? [],
+    };
   } catch (error) {
     console.error('Failed to load from Netlify Blobs', error);
     return structuredClone(DEFAULT_DATA);

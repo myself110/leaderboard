@@ -13,7 +13,7 @@ export function LeaderboardPage() {
         </div>
         {data && (
           <p className="meta">
-            Max {data.maxSubmissionsPerPlayer} submissions per player · Updated{' '}
+            Max {data.maxSubmissionsPerPlayer} submissions per group · Updated{' '}
             {new Date(data.updatedAt).toLocaleTimeString()}
           </p>
         )}

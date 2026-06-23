@@ -1,40 +1,38 @@
 import type { AppData, LeaderboardRow } from '../../../shared/types';
 
 export function buildLeaderboard(data: AppData): LeaderboardRow[] {
-  const groupById = new Map(data.groups.map((group) => [group.id, group.name]));
-  const submissionsByPlayer = new Map<string, typeof data.submissions>();
+  const submissionsByGroup = new Map<string, typeof data.submissions>();
 
   for (const submission of data.submissions) {
-    const list = submissionsByPlayer.get(submission.playerId) ?? [];
+    const list = submissionsByGroup.get(submission.playerId) ?? [];
     list.push(submission);
-    submissionsByPlayer.set(submission.playerId, list);
+    submissionsByGroup.set(submission.playerId, list);
   }
 
-  const rows: LeaderboardRow[] = data.players.map((player) => {
-    const playerSubmissions = submissionsByPlayer.get(player.id) ?? [];
-    const sorted = [...playerSubmissions].sort(
+  const rows: LeaderboardRow[] = data.players.map((group) => {
+    const groupSubmissions = submissionsByGroup.get(group.id) ?? [];
+    const sorted = [...groupSubmissions].sort(
       (a, b) => new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime(),
     );
     const bestScore =
-      playerSubmissions.length > 0
-        ? Math.max(...playerSubmissions.map((submission) => submission.score))
+      groupSubmissions.length > 0
+        ? Math.max(...groupSubmissions.map((submission) => submission.score))
         : 0;
 
     return {
       rank: 0,
-      playerId: player.id,
-      playerName: player.name,
-      groupName: player.groupId ? (groupById.get(player.groupId) ?? null) : null,
+      groupId: group.id,
+      groupName: group.name,
       bestScore,
       latestScore: sorted[0]?.score ?? null,
-      submissionCount: playerSubmissions.length,
+      submissionCount: groupSubmissions.length,
     };
   });
 
   rows.sort((a, b) => {
     if (b.bestScore !== a.bestScore) return b.bestScore - a.bestScore;
     if (b.submissionCount !== a.submissionCount) return b.submissionCount - a.submissionCount;
-    return a.playerName.localeCompare(b.playerName);
+    return a.groupName.localeCompare(b.groupName);
   });
 
   return rows.map((row, index) => ({ ...row, rank: index + 1 }));
@@ -49,12 +47,11 @@ export function escapeCsv(value: string): string {
 
 export function toCsv(data: AppData): string {
   const rows = buildLeaderboard(data);
-  const header = 'rank,player,group,best_score,latest_score,submissions';
+  const header = 'rank,group,best_score,latest_score,submissions';
   const lines = rows.map((row) =>
     [
       row.rank,
-      escapeCsv(row.playerName),
-      escapeCsv(row.groupName ?? ''),
+      escapeCsv(row.groupName),
       row.bestScore,
       row.latestScore ?? '',
       row.submissionCount,

@@ -15,7 +15,6 @@ export function LeaderboardTable({ rows }: Props) {
         <thead>
           <tr>
             <th>#</th>
-            <th>Player</th>
             <th>Group</th>
             <th>Best</th>
             <th>Latest</th>
@@ -24,10 +23,9 @@ export function LeaderboardTable({ rows }: Props) {
         </thead>
         <tbody>
           {rows.map((row) => (
-            <tr key={row.playerId} className={row.rank <= 3 ? `rank-${row.rank}` : undefined}>
+            <tr key={row.groupId} className={row.rank <= 3 ? `rank-${row.rank}` : undefined}>
               <td>{row.rank}</td>
-              <td>{row.playerName}</td>
-              <td>{row.groupName ?? '—'}</td>
+              <td>{row.groupName}</td>
               <td>{row.bestScore}</td>
               <td>{row.latestScore ?? '—'}</td>
               <td>{row.submissionCount}</td>

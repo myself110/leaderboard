@@ -1,6 +1,6 @@
 import { ChangeEvent, FormEvent, useEffect, useState } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
-import type { Group, Player } from '../../shared/types';
+import type { Group } from '../../shared/types';
 import { QrSheet } from '../components/QrSheet';
 import { clearAdminToken, getAdminToken, setAdminToken } from '../hooks/useAdminAuth';
 import { api, submitUrl } from '../lib/api';
@@ -8,23 +8,19 @@ import { api, submitUrl } from '../lib/api';
 export function AdminPage() {
   const [token, setToken] = useState<string | null>(() => getAdminToken());
   const [password, setPassword] = useState('');
-  const [players, setPlayers] = useState<Player[]>([]);
   const [groups, setGroups] = useState<Group[]>([]);
   const [maxSubmissions, setMaxSubmissions] = useState(3);
-  const [playerName, setPlayerName] = useState('');
-  const [playerGroupId, setPlayerGroupId] = useState('');
   const [groupName, setGroupName] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [showQrSheet, setShowQrSheet] = useState(false);
 
   async function loadAdminData(authToken: string) {
-    const [playersResponse, settingsResponse] = await Promise.all([
-      api.getAdminPlayers(authToken),
+    const [groupsResponse, settingsResponse] = await Promise.all([
+      api.getAdminGroups(authToken),
       api.getSettings(authToken),
     ]);
-    setPlayers(playersResponse.players);
-    setGroups(playersResponse.groups);
+    setGroups(groupsResponse.groups);
     setMaxSubmissions(settingsResponse.settings.maxSubmissionsPerPlayer);
   }
 
@@ -55,21 +51,6 @@ export function AdminPage() {
     }
   }
 
-  async function handleAddPlayer(event: FormEvent) {
-    event.preventDefault();
-    if (!token) return;
-
-    try {
-      await api.addPlayer(token, playerName, playerGroupId || null);
-      setPlayerName('');
-      setPlayerGroupId('');
-      setMessage('Player added');
-      await loadAdminData(token);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to add player');
-    }
-  }
-
   async function handleAddGroup(event: FormEvent) {
     event.preventDefault();
     if (!token) return;
@@ -82,12 +63,6 @@ export function AdminPage() {
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to add group');
     }
-  }
-
-  async function handleDeletePlayer(id: string) {
-    if (!token) return;
-    await api.deletePlayer(token, id);
-    await loadAdminData(token);
   }
 
   async function handleDeleteGroup(id: string) {
@@ -127,7 +102,7 @@ export function AdminPage() {
 
     const csv = await file.text();
     const result = await api.importCsv(token, csv);
-    setMessage(`Imported ${result.imported} players`);
+    setMessage(`Imported ${result.imported} groups`);
     await loadAdminData(token);
     event.target.value = '';
   }
@@ -135,7 +110,6 @@ export function AdminPage() {
   function handleLogout() {
     clearAdminToken();
     setToken(null);
-    setPlayers([]);
     setGroups([]);
   }
 
@@ -174,7 +148,7 @@ export function AdminPage() {
             Back to admin
           </button>
         </div>
-        <QrSheet players={players} groups={groups} />
+        <QrSheet groups={groups} />
       </main>
     );
   }
@@ -221,53 +195,20 @@ export function AdminPage() {
             onChange={(event) => setGroupName(event.target.value)}
             required
           />
-          <button type="submit" className="btn">
-            Add group
-          </button>
-        </form>
-        <ul className="simple-list">
-          {groups.map((group) => (
-            <li key={group.id}>
-              <span>{group.name}</span>
-              <button type="button" className="btn danger" onClick={() => void handleDeleteGroup(group.id)}>
-                Delete
-              </button>
-            </li>
-          ))}
-        </ul>
-      </section>
-
-      <section className="card">
-        <h2>Players</h2>
-        <form className="inline-form" onSubmit={handleAddPlayer}>
-          <input
-            placeholder="Player name"
-            value={playerName}
-            onChange={(event) => setPlayerName(event.target.value)}
-            required
-          />
-          <select value={playerGroupId} onChange={(event) => setPlayerGroupId(event.target.value)}>
-            <option value="">No group</option>
-            {groups.map((group) => (
-              <option key={group.id} value={group.id}>
-                {group.name}
-              </option>
-            ))}
-          </select>
           <button type="submit" className="btn primary">
-            Add player
+            Add group
           </button>
         </form>
 
         <div className="player-grid">
-          {players.map((player) => (
-            <article key={player.id} className="player-card">
+          {groups.map((group) => (
+            <article key={group.id} className="player-card">
               <div>
-                <h3>{player.name}</h3>
-                <p className="meta">{submitUrl(player.token)}</p>
+                <h3>{group.name}</h3>
+                <p className="meta">{submitUrl(group.token)}</p>
               </div>
-              <QRCodeSVG value={submitUrl(player.token)} size={96} level="M" includeMargin />
-              <button type="button" className="btn danger" onClick={() => void handleDeletePlayer(player.id)}>
+              <QRCodeSVG value={submitUrl(group.token)} size={96} level="M" includeMargin />
+              <button type="button" className="btn danger" onClick={() => void handleDeleteGroup(group.id)}>
                 Delete
               </button>
             </article>

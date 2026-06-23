@@ -1,11 +1,11 @@
 import { FormEvent, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import type { PlayerPublicInfo } from '../../shared/types';
+import type { GroupPublicInfo } from '../../shared/types';
 import { api } from '../lib/api';
 
 export function SubmitPage() {
   const { token = '' } = useParams();
-  const [info, setInfo] = useState<PlayerPublicInfo | null>(null);
+  const [info, setInfo] = useState<GroupPublicInfo | null>(null);
   const [score, setScore] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
@@ -16,14 +16,14 @@ export function SubmitPage() {
 
     async function load() {
       try {
-        const next = await api.getPlayerInfo(token);
+        const next = await api.getGroupInfo(token);
         if (active) {
           setInfo(next);
           setError(null);
         }
       } catch (err) {
         if (active) {
-          setError(err instanceof Error ? err.message : 'Failed to load player');
+          setError(err instanceof Error ? err.message : 'Failed to load group');
         }
       }
     }
@@ -67,8 +67,7 @@ export function SubmitPage() {
     <main className="page submit-page">
       <header className="page-header compact">
         <p className="eyebrow">Score submission</p>
-        <h1>{info?.name ?? 'Player'}</h1>
-        {info?.groupName && <p className="meta">{info.groupName}</p>}
+        <h1>{info?.name ?? 'Group'}</h1>
       </header>
 
       {error && <p className="status error">{error}</p>}

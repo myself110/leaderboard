@@ -1,14 +1,7 @@
 export interface Group {
   id: string;
   name: string;
-  createdAt: string;
-}
-
-export interface Player {
-  id: string;
-  name: string;
   token: string;
-  groupId: string | null;
   createdAt: string;
 }
 
@@ -24,17 +17,17 @@ export interface Settings {
 }
 
 export interface AppData {
-  groups: Group[];
-  players: Player[];
+  /** @deprecated Legacy field — ignored on read */
+  groups?: { id: string; name: string; createdAt: string }[];
+  players: Group[];
   submissions: Submission[];
   settings: Settings;
 }
 
 export interface LeaderboardRow {
   rank: number;
-  playerId: string;
-  playerName: string;
-  groupName: string | null;
+  groupId: string;
+  groupName: string;
   bestScore: number;
   latestScore: number | null;
   submissionCount: number;
@@ -46,9 +39,8 @@ export interface LeaderboardResponse {
   maxSubmissionsPerPlayer: number;
 }
 
-export interface PlayerPublicInfo {
+export interface GroupPublicInfo {
   name: string;
-  groupName: string | null;
   submissionCount: number;
   maxSubmissions: number;
   canSubmit: boolean;

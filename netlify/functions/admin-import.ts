@@ -68,15 +68,14 @@ export const handler: Handler = async (event) => {
   try {
     const rows = parseCsv(event.body);
     if (rows.length < 2) {
-      return errorResponse('CSV must include a header row and at least one player', 400);
+      return errorResponse('CSV must include a header row and at least one group', 400);
     }
 
     const header = rows[0].map((cell) => cell.trim().toLowerCase());
-    const nameIndex = header.indexOf('name');
-    const groupIndex = header.indexOf('group');
+    const nameIndex = header.indexOf('name') >= 0 ? header.indexOf('name') : header.indexOf('group');
 
     if (nameIndex === -1) {
-      return errorResponse('CSV must include a "name" column', 400);
+      return errorResponse('CSV must include a "name" or "group" column', 400);
     }
 
     const data = await loadData(event);
@@ -86,34 +85,17 @@ export const handler: Handler = async (event) => {
       const name = row[nameIndex]?.trim();
       if (!name) continue;
 
-      const groupName = groupIndex >= 0 ? row[groupIndex]?.trim() : '';
-      let groupId: string | null = null;
-
-      if (groupName) {
-        let group = data.groups.find((entry) => entry.name.toLowerCase() === groupName.toLowerCase());
-        if (!group) {
-          group = {
-            id: newId(),
-            name: groupName,
-            createdAt: new Date().toISOString(),
-          };
-          data.groups.push(group);
-        }
-        groupId = group.id;
-      }
-
       data.players.push({
         id: newId(),
         name,
         token: newToken(),
-        groupId,
         createdAt: new Date().toISOString(),
       });
       imported += 1;
     }
 
     if (imported === 0) {
-      return errorResponse('No valid players found in CSV', 400);
+      return errorResponse('No valid groups found in CSV', 400);
     }
 
     await saveData(data, event);

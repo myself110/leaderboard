@@ -7,7 +7,7 @@ import {
   jsonResponse,
   parseBody,
 } from './_shared/http';
-import { loadData, newId, saveData } from './_shared/storage';
+import { loadData, newId, newToken, saveData } from './_shared/storage';
 
 interface GroupBody {
   name?: string;
@@ -26,7 +26,7 @@ export const handler: Handler = async (event) => {
     const data = await loadData(event);
 
     if (event.httpMethod === 'GET') {
-      return jsonResponse({ groups: data.groups });
+      return jsonResponse({ groups: data.players });
     }
 
     if (event.httpMethod === 'POST') {
@@ -39,10 +39,11 @@ export const handler: Handler = async (event) => {
       const group = {
         id: newId(),
         name,
+        token: newToken(),
         createdAt: new Date().toISOString(),
       };
 
-      data.groups.push(group);
+      data.players.push(group);
       await saveData(data, event);
       return jsonResponse({ group }, 201);
     }
@@ -53,9 +54,9 @@ export const handler: Handler = async (event) => {
         return errorResponse('Missing group id', 400);
       }
 
-      data.groups = data.groups.filter((group) => group.id !== groupId);
-      data.players = data.players.map((player) =>
-        player.groupId === groupId ? { ...player, groupId: null } : player,
+      data.players = data.players.filter((group) => group.id !== groupId);
+      data.submissions = data.submissions.filter(
+        (submission) => submission.playerId !== groupId,
       );
       await saveData(data, event);
       return jsonResponse({ ok: true });
