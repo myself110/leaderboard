@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Leaderboard Backup Score Sheet</title>
+    <style>
+      @page {
+        size: A4 portrait;
+        margin: 12mm 14mm;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 10pt;
+        color: #000;
+        background: #fff;
+      }
+
+      .sheet {
+        max-width: 182mm;
+        margin: 0 auto;
+      }
+
+      header {
+        text-align: center;
+        margin-bottom: 8mm;
+        border-bottom: 2px solid #000;
+        padding-bottom: 4mm;
+      }
+
+      h1 {
+        margin: 0 0 2mm;
+        font-size: 16pt;
+        letter-spacing: 0.02em;
+      }
+
+      .subtitle {
+        margin: 0;
+        font-size: 9pt;
+        color: #333;
+      }
+
+      .meta {
+        display: flex;
+        justify-content: space-between;
+        gap: 8mm;
+        margin-top: 5mm;
+        font-size: 10pt;
+      }
+
+      .meta label {
+        flex: 1;
+        display: flex;
+        align-items: baseline;
+        gap: 2mm;
+      }
+
+      .line {
+        flex: 1;
+        border-bottom: 1px solid #000;
+        min-width: 30mm;
+        height: 1em;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        table-layout: fixed;
+      }
+
+      th,
+      td {
+        border: 1px solid #000;
+        padding: 2.5mm 2mm;
+        text-align: center;
+        vertical-align: middle;
+      }
+
+      th {
+        background: #eee;
+        font-size: 9pt;
+        font-weight: 700;
+      }
+
+      col.num {
+        width: 8mm;
+      }
+
+      col.name {
+        width: auto;
+      }
+
+      col.score {
+        width: 22mm;
+      }
+
+      td.num {
+        font-weight: 700;
+        background: #f7f7f7;
+      }
+
+      td.name {
+        text-align: left;
+        padding-left: 3mm;
+      }
+
+      td.score {
+        height: 9mm;
+      }
+
+      footer {
+        margin-top: 5mm;
+        font-size: 8pt;
+        color: #444;
+        display: flex;
+        justify-content: space-between;
+      }
+
+      .notes {
+        margin-top: 4mm;
+        font-size: 8.5pt;
+        line-height: 1.4;
+      }
+
+      .notes strong {
+        font-size: 9pt;
+      }
+
+      @media screen {
+        body {
+          padding: 16px;
+          background: #ddd;
+        }
+
+        .sheet {
+          background: #fff;
+          padding: 12mm 14mm;
+          box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .print-btn {
+          display: block;
+          margin: 0 auto 16px;
+          padding: 10px 20px;
+          font-size: 14px;
+          cursor: pointer;
+        }
+      }
+
+      @media print {
+        .print-btn {
+          display: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <button class="print-btn" type="button" onclick="window.print()">Print score sheet</button>
+
+    <div class="sheet">
+      <header>
+        <h1>Leaderboard Backup Score Sheet</h1>
+        <p class="subtitle">Use if the digital system is unavailable · Best score counts</p>
+        <div class="meta">
+          <label>Event <span class="line"></span></label>
+          <label>Date <span class="line"></span></label>
+          <label>Facilitator <span class="line"></span></label>
+        </div>
+      </header>
+
+      <table>
+        <colgroup>
+          <col class="num" />
+          <col class="name" />
+          <col class="score" />
+          <col class="score" />
+          <col class="score" />
+        </colgroup>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Group name</th>
+            <th>Score 1</th>
+            <th>Score 2</th>
+            <th>Score 3</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td class="num">1</td><td class="name"></td><td class="score"></td><td class="score"></td><td class="score"></td></tr>
+          <tr><td class="num">2</td><td class="name"></td><td class="score"></td><td class="score"></td><td class="score"></td></tr>
+          <tr><td class="num">3</td><td class="name"></td><td class="score"></td><td class="score"></td><td class="score"></td></tr>
+          <tr><td class="num">4</td><td class="name"></td><td class="score"></td><td class="score"></td><td class="score"></td></tr>
+          <tr><td class="num">5</td><td class="name"></td><td class="score"></td><td class="score"></td><td class="score"></td></tr>
+          <tr><td class="num">6</td><td class="name"></td><td class="score"></td><td class="score"></td><td class="score"></td></tr>
+          <tr><td class="num">7</td><td class="name"></td><td class="score"></td><td class="score"></td><td class="score"></td></tr>
+          <tr><td class="num">8</td><td class="name"></td><td class="score"></td><td class="score"></td><td class="score"></td></tr>
+          <tr><td class="num">9</td><td class="name"></td><td class="score"></td><td class="score"></td><td class="score"></td></tr>
+          <tr><td class="num">10</td><td class="name"></td><td class="score"></td><td class="score"></td><td class="score"></td></tr>
+          <tr><td class="num">11</td><td class="name"></td><td class="score"></td><td class="score"></td><td class="score"></td></tr>
+          <tr><td class="num">12</td><td class="name"></td><td class="score"></td><td class="score"></td><td class="score"></td></tr>
+          <tr><td class="num">13</td><td class="name"></td><td class="score"></td><td class="score"></td><td class="score"></td></tr>
+          <tr><td class="num">14</td><td class="name"></td><td class="score"></td><td class="score"></td><td class="score"></td></tr>
+          <tr><td class="num">15</td><td class="name"></td><td class="score"></td><td class="score"></td><td class="score"></td></tr>
+          <tr><td class="num">16</td><td class="name"></td><td class="score"></td><td class="score"></td><td class="score"></td></tr>
+          <tr><td class="num">17</td><td class="name"></td><td class="score"></td><td class="score"></td><td class="score"></td></tr>
+          <tr><td class="num">18</td><td class="name"></td><td class="score"></td><td class="score"></td><td class="score"></td></tr>
+          <tr><td class="num">19</td><td class="name"></td><td class="score"></td><td class="score"></td><td class="score"></td></tr>
+          <tr><td class="num">20</td><td class="name"></td><td class="score"></td><td class="score"></td><td class="score"></td></tr>
+          <tr><td class="num">21</td><td class="name"></td><td class="score"></td><td class="score"></td><td class="score"></td></tr>
+        </tbody>
+      </table>
+
+      <div class="notes">
+        <strong>Instructions:</strong> Write each group’s name in the first column. Record up to 3 scores per group.
+        Circle or mark the best score when entering results into the digital leaderboard later.
+      </div>
+
+      <footer>
+        <span>10Botics Leaderboard · Backup sheet</span>
+        <span>Max 3 submissions per group</span>
+      </footer>
+    </div>
+  </body>
+</html>
