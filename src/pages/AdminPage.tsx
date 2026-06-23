@@ -1,6 +1,7 @@
 import { ChangeEvent, FormEvent, useEffect, useState } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
 import type { Group } from '../../shared/types';
+import { CopyLinkButton } from '../components/CopyLinkButton';
 import { QrSheet } from '../components/QrSheet';
 import { clearAdminToken, getAdminToken, setAdminToken } from '../hooks/useAdminAuth';
 import { api, submitUrl } from '../lib/api';
@@ -203,9 +204,9 @@ export function AdminPage() {
         <div className="player-grid">
           {groups.map((group) => (
             <article key={group.id} className="player-card">
-              <div>
+              <div className="player-card-header">
                 <h3>{group.name}</h3>
-                <p className="meta">{submitUrl(group.token)}</p>
+                <CopyLinkButton url={submitUrl(group.token)} />
               </div>
               <QRCodeSVG value={submitUrl(group.token)} size={96} level="M" includeMargin />
               <button type="button" className="btn danger" onClick={() => void handleDeleteGroup(group.id)}>
