@@ -1,10 +1,12 @@
-import type { LeaderboardRow } from '../../shared/types';
+import type { SortOrder } from '../../shared/types';
+import type { DisplayLeaderboardRow } from '../lib/leaderboardSort';
 
 interface Props {
-  rows: LeaderboardRow[];
+  rows: DisplayLeaderboardRow[];
+  sortOrder: SortOrder;
 }
 
-export function LeaderboardTable({ rows }: Props) {
+export function LeaderboardTable({ rows, sortOrder }: Props) {
   if (rows.length === 0) {
     return <p className="empty-state">No scores yet. Waiting for submissions…</p>;
   }
@@ -26,13 +28,16 @@ export function LeaderboardTable({ rows }: Props) {
             <tr key={row.groupId} className={row.rank <= 3 ? `rank-${row.rank}` : undefined}>
               <td>{row.rank}</td>
               <td>{row.groupName}</td>
-              <td>{row.bestScore}</td>
+              <td>{row.submissionCount > 0 ? row.displayBest : '—'}</td>
               <td>{row.latestScore ?? '—'}</td>
               <td>{row.submissionCount}</td>
             </tr>
           ))}
         </tbody>
       </table>
+      {sortOrder === 'asc' && (
+        <p className="meta sort-hint">Ranked by lowest best score</p>
+      )}
     </div>
   );
 }

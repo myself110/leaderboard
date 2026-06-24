@@ -29,9 +29,12 @@ export interface LeaderboardRow {
   groupId: string;
   groupName: string;
   bestScore: number;
+  lowestScore: number;
   latestScore: number | null;
   submissionCount: number;
 }
+
+export type SortOrder = 'desc' | 'asc';
 
 export interface LeaderboardResponse {
   rows: LeaderboardRow[];

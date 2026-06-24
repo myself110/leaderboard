@@ -47,6 +47,43 @@ a {
   margin-bottom: 2rem;
 }
 
+.leaderboard-header-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: end;
+  gap: 0.75rem;
+}
+
+.sort-toggle {
+  display: inline-flex;
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.sort-btn {
+  padding: 0.5rem 0.875rem;
+  border: none;
+  background: rgba(30, 41, 59, 0.9);
+  color: inherit;
+  font: inherit;
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+
+.sort-btn + .sort-btn {
+  border-left: 1px solid rgba(148, 163, 184, 0.25);
+}
+
+.sort-btn.active {
+  background: linear-gradient(135deg, #0284c7, #2563eb);
+}
+
+.sort-hint {
+  margin: 0.75rem 0 0;
+  text-align: right;
+}
+
 .page-header.compact {
   align-items: start;
   flex-direction: column;
@@ -350,6 +387,15 @@ select {
   .page-header {
     flex-direction: column;
     align-items: start;
+  }
+
+  .leaderboard-header-actions {
+    align-items: start;
+    width: 100%;
+  }
+
+  .sort-hint {
+    text-align: left;
   }
 
   .leaderboard-table th:nth-child(5),

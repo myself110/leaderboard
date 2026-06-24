@@ -18,12 +18,17 @@ export function buildLeaderboard(data: AppData): LeaderboardRow[] {
       groupSubmissions.length > 0
         ? Math.max(...groupSubmissions.map((submission) => submission.score))
         : 0;
+    const lowestScore =
+      groupSubmissions.length > 0
+        ? Math.min(...groupSubmissions.map((submission) => submission.score))
+        : 0;
 
     return {
       rank: 0,
       groupId: group.id,
       groupName: group.name,
       bestScore,
+      lowestScore,
       latestScore: sorted[0]?.score ?? null,
       submissionCount: groupSubmissions.length,
     };
